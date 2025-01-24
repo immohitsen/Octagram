@@ -14,10 +14,10 @@ import Trending from "../../components/Trending";
 import EmptyState from "../../components/EmptyState";
 import { getAllPosts } from "../../lib/appwrite";
 import useAppwrite from "../../lib/useAppwrite";
+import VideoCard from "../../components/VideoCard";
 
 const Home = () => {
-  const { data: posts, refetch } = useAppwrite(getAllPosts);
-
+  const { data: posts = [], refetch } = useAppwrite(getAllPosts); // Default to empty array if no data
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -26,16 +26,24 @@ const Home = () => {
     setRefreshing(false);
   };
 
-  console.log(posts);
-
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
-        data={[{ id: 1 }, { id: 2 }, { id: 3 }]}
-        // data={[]}
+        data={posts}
         keyExtractor={(item) => item.$id}
         renderItem={({ item }) => (
-          <Text className="text-3xl text-white">{item.id}</Text>
+          // Safeguard: Pass undefined-safe data to VideoCard
+          <VideoCard
+            video={{
+              title: item?.title || "Untitled Video",
+              thumbnail: item?.thumbnail || "",
+              video: item?.video || "",
+              creator: {
+                username: item?.creator?.username || "Unknown Creator",
+                avatar: item?.creator?.avatar || "",
+              },
+            }}
+          />
         )}
         ListHeaderComponent={() => (
           <View className="my-6 px-4 space-y-6">
